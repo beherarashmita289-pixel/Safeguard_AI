@@ -5,12 +5,16 @@ from ultralytics import YOLO
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_DIR = BASE_DIR.parent
 
-# Find trained YOLO model
+# Find trained YOLO model - sab jagah dhoondho
 possible_paths = [
     BASE_DIR / "runs/ppe-test/weights/best.pt",
     BASE_DIR / "runs/detect/ppe-test/weights/best.pt",
     PROJECT_DIR / "runs/detect/ppe-test/weights/best.pt",
     PROJECT_DIR / "runs/ppe-test/weights/best.pt",
+    BASE_DIR / "best.pt",
+    PROJECT_DIR / "best.pt",
+    BASE_DIR / "models/best.pt",
+    PROJECT_DIR / "models/best.pt",
 ]
 
 MODEL_PATH = next(
@@ -18,16 +22,20 @@ MODEL_PATH = next(
     None
 )
 
+# Agar best.pt nahi mila, to crash mat karo, yolov8n use karo
 if MODEL_PATH is None:
-    raise FileNotFoundError(
-        "YOLO best.pt model not found. Check model path."
-    )
+    print("WARNING: best.pt nahi mila, yolov8n.pt use kar raha hu (backend chalega)")
+    print("Tumhara best.pt inme se kahi hona chahiye tha:")
+    for p in possible_paths:
+        print(" -", p)
+    MODEL_PATH = "yolov8n.pt"
+else:
+    print(f"YOLO MODEL LOADED: {MODEL_PATH}")
 
 # Load YOLO model
 model = YOLO(str(MODEL_PATH))
 
 print("YOLO MODEL LOADED SUCCESSFULLY")
-
 
 def detect_ppe(image_path):
 

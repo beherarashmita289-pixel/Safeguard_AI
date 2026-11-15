@@ -3,10 +3,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 import shutil
 import uuid
-
-from backend.detection import detect_ppe
-
+from backend.database import test_connection
+from backend.detection import detect_ppe as ppe_detection
 app = FastAPI(title="Safeguard AI PPE Detection API")
+
+@app.on_event("startup")
+async def startup_event():
+    print("Starting up the Safeguard AI Backend...")
+    test_connection()
 
 app.add_middleware(
     CORSMiddleware,
@@ -19,11 +23,9 @@ app.add_middleware(
 UPLOAD_DIR = Path("backend/uploads")
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
-
 @app.get("/")
 def home():
     return {"message": "Safeguard AI Backend is Running"}
-
 
 @app.post("/detect")
 async def detect(file: UploadFile = File(...)):
@@ -37,7 +39,7 @@ async def detect(file: UploadFile = File(...)):
         with image_path.open("wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
-        result = detect_ppe(str(image_path))
+        result = ppe_detection(str(image_path))
         return result
 
     except Exception as error:
